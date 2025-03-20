@@ -51,7 +51,7 @@ jobs:
         path: build/
         
     - name: Generate Native Dataset 
-      run: cd build && ls -l && sudo ./mmult_dataset native
+      run: cd build && sudo chmod -R 777 ./ && sudo ./mmult_dataset native
 
     - name: Generate Native Dataset 
-      run: cd build && sudo ./mmult -i naive
+      run: cd build && sudo chmod -R 777 ./ && sudo ./mmult -i naive
