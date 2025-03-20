@@ -32,7 +32,7 @@ jobs:
     steps:
 
     - name: Generate Native Dataset 
-      run: cd build && ./mmult_dataset native
+      run: ls; cd YABMS/build && ./mmult_dataset native
 
     - name: Generate Native Dataset 
       run: cd build && sudo ./mmult -i naive
