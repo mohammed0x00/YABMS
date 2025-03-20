@@ -28,7 +28,7 @@ jobs:
       run: sudo apt-get install -y make
 
     - name: Build the project
-      run: make mmult mmult_dataset
+      run: make mmult mmult_dataset && cp src/mmult_dataset/generate_dataset.py build/
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -51,7 +51,19 @@ jobs:
         path: build/
         
     - name: Generate Medium Dataset 
-      run: cd build && sudo chmod -R 777 ./ && sudo ./mmult_dataset medium
+      run: cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py medium
 
     - name: Test Medium Dataset 
       run: cd build && sudo ./mmult -i naive
+
+    - name: Upload Dataset artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Dataset_Medium
+        path: build/mmult_ds
+
+    - name: Upload Result artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: scalar_naive_runtimes.csv
+        path: build/scalar_naive_runtimes.csv
