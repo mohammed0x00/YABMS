@@ -2,9 +2,9 @@
 #define MMULT_DATASET_CONF_H
 
 typedef struct {
-    int colsA;
     int rowsA;
-    int rowsB;
+    int colsA;
+    int colsB;
     char * name;
 } dataset_t;
 

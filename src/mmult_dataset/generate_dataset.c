@@ -9,7 +9,6 @@
 char * dataset_name = NULL;
 
 void multiply_matrices(float *A, float *B, float *C, int rowsA, int colsA, int colsB);
-void read_matrix_from_file(const char *filename, float *matrix, int *rows, int *cols);
 void save_matrix_to_file(const char *filename, float *matrix, int rows, int cols);
 
 // Function to multiply two matrices represented as 1D arrays
@@ -24,21 +23,6 @@ void multiply_matrices(float *A, float *B, float *C, int rowsA, int colsA, int c
     }
 }
 
-// Function to read a matrix from a binary file
-void read_matrix_from_file(const char *filename, float *matrix, int *rows, int *cols) {
-    FILE *file = fopen(filename, "rb");
-    if (!file) {
-        printf("Failed to open file %s for reading.\n", filename);
-        return;
-    }
-
-    fread(rows, sizeof(int), 1, file);
-    fread(cols, sizeof(int), 1, file);
-    fread(matrix, sizeof(float), (*rows) * (*cols), file);
-
-    fclose(file);
-}
-
 // Function to save a matrix to a binary file
 void save_matrix_to_file(const char *filename, float *matrix, int rows, int cols) {
     FILE *file = fopen(filename, "wb");
@@ -47,8 +31,6 @@ void save_matrix_to_file(const char *filename, float *matrix, int rows, int cols
         return;
     }
 
-    fwrite(&rows, sizeof(int), 1, file);
-    fwrite(&cols, sizeof(int), 1, file);
     fwrite(matrix, sizeof(float), rows * cols, file);
 
     fclose(file);
@@ -56,6 +38,7 @@ void save_matrix_to_file(const char *filename, float *matrix, int rows, int cols
 
 int main(int argc, char *argv[]) {
 
+    // Print usage if no dataset name is provided
     if (argc != 2) {
         printf("Usage: %s {", argv[0]);
         for(int i=0; i<sizeof(dataset) / sizeof(dataset_t); i++) {
@@ -71,13 +54,14 @@ int main(int argc, char *argv[]) {
         if (strcmp(dataset[i].name, argv[1]) == 0) {
             rowsA = dataset[i].rowsA;
             colsA = dataset[i].colsA;
-            rowsB = dataset[i].rowsB;
-            colsB = rowsA; // The number of rows in matrix B is equal to the number of columns in matrix A
+            rowsB = colsA;
+            colsB = dataset[i].colsB; // The number of rows in matrix B is equal to the number of columns in matrix A
             dataset_name = argv[1];
             break;
         }
     }
 
+    // Check if the dataset name is valid
     if(dataset_name == NULL) {
         printf("Invalid dataset name.\n");
         return 1;
@@ -88,12 +72,13 @@ int main(int argc, char *argv[]) {
     float *B = (float *)malloc(rowsB * colsB * sizeof(float));
     float *C = (float *)malloc(rowsA * colsB * sizeof(float));
 
+    // Check if memory allocation was successful
     if (!A || !B || !C) {
         printf("Memory allocation failed.\n");
         return 1;
     }
 
-    // Generate random values for matrices A and B
+    // Generate random values for matrix A
     srand(time(NULL));
     for (int i = 0; i < rowsA; i++) {
         for (int j = 0; j < colsA; j++) {
@@ -101,6 +86,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Generate random values for matrix B
     for (int i = 0; i < rowsB; i++) {
         for (int j = 0; j < colsB; j++) {
             B[i * colsB + j] = (float)(rand() % 100) / 10.0f; // Random float values
@@ -116,14 +102,31 @@ int main(int argc, char *argv[]) {
     }
     else
     {
-        // Save matrices A and B to binary files
-        save_matrix_to_file("mmult_ds/matrixA.bin", A, rowsA, colsA);
-        save_matrix_to_file("mmult_ds/matrixB.bin", B, rowsB, colsB);
-        
-        // Save the resultant matrix C to a binary file
-        save_matrix_to_file("mmult_ds/matrixC.bin", C, rowsA, colsB);
+        // Write metadata to binary file
+        FILE *metafile = fopen("mmult_ds/metadata.bin", "wb");
+        if (!metafile) {
+            printf("Failed to open file mmult_ds/metadata.bin for writing.\n");
+            return 1;
+        }
+        else
+        {
+            fwrite(&rowsA, sizeof(int), 1, metafile);
+            fwrite(&colsA, sizeof(int), 1, metafile);
+            fwrite(&rowsB, sizeof(int), 1, metafile);
+            fwrite(&colsB, sizeof(int), 1, metafile);
+            fclose(metafile);
 
-        printf("Matrices saved to binary files.\n");
+            // Save matrices A and B to binary files
+            save_matrix_to_file("mmult_ds/matrixA.bin", A, rowsA, colsA);
+            save_matrix_to_file("mmult_ds/matrixB.bin", B, rowsB, colsB);
+            
+            // Save the resultant matrix C to a binary file
+            save_matrix_to_file("mmult_ds/matrixC.bin", C, rowsA, colsB);
+
+            // Print success message
+            printf("Matrices saved to binary files.\n");
+        }
+
     }
 
 

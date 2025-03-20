@@ -10,10 +10,14 @@
 #define __INCLUDE_TYPES_H_
 
 typedef struct {
-  byte*   input;
-  byte*   output;
+  float*   input0;
+  float*   input1;
+  float*   output;
 
-  size_t size;
+  size_t rowsA;
+  size_t colsA;
+  size_t rowsB;
+  size_t colsB;
 
   int     cpu;
   int     nthreads;

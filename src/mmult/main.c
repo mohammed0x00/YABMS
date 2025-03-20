@@ -56,7 +56,12 @@
 /* Include application-specific headers */
 #include "include/types.h"
 
-const int SIZE_DATA = 4 * 1024 * 1024;
+const char * const meta_file = "mmult_ds/metadata.bin";
+const char * const matA_file = "mmult_ds/matrixA.bin";
+const char * const matB_file = "mmult_ds/matrixB.bin";
+const char * const matC_file = "mmult_ds/matrixC.bin";
+
+void read_matrix_from_file(const char *filename, float *matrix, int rows, int cols);
 
 int main(int argc, char** argv)
 {
@@ -70,8 +75,26 @@ int main(int argc, char** argv)
   int nruns    = 10000;
   int nstdevs  = 3;
 
-  /* Data */
-  int data_size = SIZE_DATA;
+  int colsA, rowsA, colsB, rowsB;
+
+  /* Read metadata */
+  FILE *metafile = fopen(meta_file, "rb");
+  if (!metafile) {
+      printf("Failed to open file %s for reading.\n", meta_file);
+      return -1;
+  }
+
+  /* Read metadata */
+  if (fread(&rowsA, sizeof(int), 1, metafile) != 1 ||
+      fread(&colsA, sizeof(int), 1, metafile) != 1 ||
+      fread(&rowsB, sizeof(int), 1, metafile) != 1 ||
+      fread(&colsB, sizeof(int), 1, metafile) != 1) {
+      printf("Failed to read metadata from file %s.\n", meta_file);
+      fclose(metafile);
+      return -1;
+  }
+
+  fclose(metafile);
 
   /* Parse arguments */
   /* Function pointers */
@@ -106,9 +129,9 @@ int main(int argc, char** argv)
 
     /* Input/output data size */
     if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--size") == 0) {
-      assert (++i < argc);
-      data_size = atoi(argv[i]);
-
+      //assert (++i < argc);
+      //data_size = atoi(argv[i]);
+      printf("Data size is determined by the metadata file\n");
       continue;
     }
 
@@ -171,7 +194,7 @@ int main(int argc, char** argv)
     printf("    -h | --help      Print this message\n");
     printf("    -n | --nthreads  Set number of threads available (default = %d)\n", nthreads);
     printf("    -c | --cpu       Set the main CPU for the program (default = %d)\n", cpu);
-    printf("    -s | --size      Size of input and output data (default = %d)\n", data_size);
+    //printf("    -s | --size      Size of input and output data (default = %d)\n", data_size);
     printf("         --nruns     Number of runs to the implementation (default = %d)\n", nruns);
     printf("         --stdevs    Number of standard deviation to exclude outliers (default = %d)\n", nstdevs);
     printf("\n");
@@ -240,39 +263,37 @@ int main(int argc, char** argv)
 
   /* Datasets */
   /* Allocation and initialization */
-  byte* src   = __ALLOC_INIT_DATA(byte, data_size + 0);
-  byte* ref   = __ALLOC_INIT_DATA(byte, data_size + 4);
-  byte* dest  = __ALLOC_DATA     (byte, data_size + 4);
+  float* srcA   = __ALLOC_INIT_DATA(float, (rowsA * colsA));
+  float* srcB   = __ALLOC_INIT_DATA(float, (rowsB * colsB));
+  float* ref    = __ALLOC_INIT_DATA(float, (rowsA * colsB + 1));
+  float* dest   = __ALLOC_DATA     (float, (rowsA * colsB + 1));
+
+  /* Initialize dataset */
+  read_matrix_from_file(matA_file, srcA, rowsA, colsA);
+  read_matrix_from_file(matB_file, srcB, rowsB, colsB);
+  read_matrix_from_file(matC_file, ref, rowsA, colsB);
+  
 
   /* Setting a guards, which is 0xdeadcafe.
      The guard should not change or be touched. */
-  __SET_GUARD(ref , data_size);
-  __SET_GUARD(dest, data_size);
-
-  /* Generate ref data */
-  /* Arguments for the functions */
-  args_t args_ref;
-
-  args_ref.size     = data_size;
-  args_ref.input    = src;
-  args_ref.output   = ref;
-
-  args_ref.cpu      = cpu;
-  args_ref.nthreads = nthreads;
-
-  /* Running the reference function */
-  impl_ref(&args_ref);
+  __SET_GUARD(ref , rowsA * colsB * sizeof(float));
+  __SET_GUARD(dest, rowsA * colsB * sizeof(float));
 
   /* Execute the requested implementation */
   /* Arguments for the function */
   args_t args;
 
-  args.size     = data_size;
-  args.input    = src;
+  args.rowsA     = rowsA;
+  args.colsA     = colsA;
+  args.rowsB     = rowsB;
+  args.colsB     = colsB;
+  args.input0   = srcA;
+  args.input1   = srcB;
   args.output   = dest;
 
   args.cpu      = cpu;
   args.nthreads = nthreads;
+  
 
   /* Start execution */
   printf("Running \"%s\" implementation:\n", impl_str);
@@ -290,8 +311,9 @@ int main(int argc, char** argv)
 
   /* Verfication */
   printf("  * Verifying results .... ");
-  bool match = __CHECK_MATCH(ref, dest, data_size);
-  bool guard = __CHECK_GUARD(     dest, data_size);
+  bool match = __CHECK_MATCH(ref, dest, rowsA * colsB);
+  bool guard = __CHECK_GUARD(     dest, rowsA * colsB * sizeof(float));
+  
   if (match && guard) {
     printf("Success\n");
   } else if (!match && guard) {
@@ -417,7 +439,8 @@ int main(int argc, char** argv)
   printf("\n");
 
   /* Manage memory */
-  free(src);
+  free(srcA);
+  free(srcB);
   free(dest);
   free(ref);
 
@@ -426,4 +449,17 @@ int main(int argc, char** argv)
 
   /* Done */
   return 0;
+}
+
+// Function to read a matrix from a binary file
+void read_matrix_from_file(const char *filename, float *matrix, int rows, int cols) {
+  FILE *file = fopen(filename, "rb");
+  if (!file) {
+      printf("Failed to open file %s for reading.\n", filename);
+      return;
+  }
+
+  (void)fread(matrix, sizeof(float), rows * cols, file);
+
+  fclose(file);
 }
