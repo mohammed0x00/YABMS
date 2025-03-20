@@ -28,10 +28,11 @@ jobs:
       run: make mmult mmult_dataset
   test:
     runs-on: ubuntu-latest
+    needs: build
     steps:
 
     - name: Generate Native Dataset 
-      run: cd build; ./mmult_dataset native
+      run: cd build && ./mmult_dataset native
 
     - name: Generate Native Dataset 
-      run: cd build; sudo ./mmult -i naive
+      run: cd build && sudo ./mmult -i naive
