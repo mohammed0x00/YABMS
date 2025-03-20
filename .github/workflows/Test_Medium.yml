@@ -1,0 +1,57 @@
+name: C Project CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build_dir: ${{ steps.build.outputs.build_dir }}  # Output the path of the build directory
+
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up C compiler (gcc)
+      run: sudo apt-get install -y build-essential
+
+    - name: Set up make
+      run: sudo apt-get install -y make
+
+    - name: Build the project
+      run: make mmult mmult_dataset
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build
+        path: build/  # The build directory to be uploaded as an artifact
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build
+        path: build/
+        
+    - name: Generate Medium Dataset 
+      run: cd build && sudo chmod -R 777 ./ && sudo ./mmult_dataset medium
+
+    - name: Test Medium Dataset 
+      run: cd build && sudo ./mmult -i naive
