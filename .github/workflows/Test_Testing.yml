@@ -51,7 +51,7 @@ jobs:
         path: build/
         
     - name: Generate Testing Dataset 
-      run: cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py testing
+      run: sudo apt install python3-numpy && cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py testing
 
     - name: Test Testing Dataset 
       run: cd build && sudo ./mmult -i naive

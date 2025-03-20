@@ -51,7 +51,7 @@ jobs:
         path: build/
         
     - name: Generate Native Dataset 
-      run: cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py native
+      run: sudo apt install python3-numpy && cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py native
 
     - name: Test Native Dataset 
       run: cd build && sudo ./mmult -i naive

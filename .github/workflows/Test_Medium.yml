@@ -51,7 +51,7 @@ jobs:
         path: build/
         
     - name: Generate Medium Dataset 
-      run: cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py medium
+      run: sudo apt install python3-numpy && cd build && sudo chmod -R 777 ./ && python3 generate_dataset.py medium
 
     - name: Test Medium Dataset 
       run: cd build && sudo ./mmult -i naive
