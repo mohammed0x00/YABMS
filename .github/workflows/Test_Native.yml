@@ -13,6 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      build_dir: ${{ steps.build.outputs.build_dir }}  # Output the path of the build directory
+
 
     steps:
     - name: Checkout repository
@@ -26,13 +29,29 @@ jobs:
 
     - name: Build the project
       run: make mmult mmult_dataset
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: build/  # The build directory to be uploaded as an artifact
+
   test:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+        path: build/
+        
     - name: Generate Native Dataset 
-      run: ls; cd YABMS/build && ./mmult_dataset native
+      run: ls; cd build && ./mmult_dataset native
 
     - name: Generate Native Dataset 
       run: cd build && sudo ./mmult -i naive
