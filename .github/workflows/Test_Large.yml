@@ -28,7 +28,7 @@ jobs:
       run: sudo apt-get install -y make
 
     - name: Build the project
-      run: make mmult mmult_dataset && cp src/mmult_dataset/generate_dataset.py build/
+      run: make mmult && cp src/mmult_dataset/generate_dataset.py build/
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
