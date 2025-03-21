@@ -72,7 +72,7 @@ int main(int argc, char** argv)
   int nthreads = 1;
   int cpu      = 0;
 
-  int nruns    = 100;
+  int nruns    = 10;
   int nstdevs  = 3;
 
   int colsA, rowsA, colsB, rowsB;
