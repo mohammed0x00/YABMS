@@ -7,6 +7,7 @@
 \usepackage{xcolor}
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
+\usepackage[a4paper, margin=1in]{geometry}
 
 % Define colors for code only
 \definecolor{codebg}{rgb}{0.9, 0.9, 0.9}
@@ -42,7 +43,7 @@
 \maketitle
 
 \section{Introduction}
-Matrix-matrix multiplication (mmult) is a fundamental operation in scientific computing, machine learning, and computer architecture. This report documents the implementation and evaluation of the mmult benchmark in the YABMS benchmark suite. The objective is to understand the performance characteristics of different implementations and analyze the impact of various optimization techniques.
+Matrix-matrix multiplication (mmult) is a fundamental operation in scientific computing, machine learning, and computer architecture. This report documents the implementation and evaluation of the mmult benchmark in the YABMS benchmark suite. The objective is to understand the performance characteristics of different datasets and analyze the impact of various optimization techniques.
 
 \section{Collaboration}
 I discussed the details of the project with Moneer Al-Bokhaiti. We covered the project requirements, the necessary tools, and the complexity of the code. He suggested creating a separate application to generate the dataset. We also agreed that storing the dataset in a binary file would be more efficient than saving it as ASCII text.
@@ -69,12 +70,6 @@ The dataset required for the benchmark is generated using a Python script. The s
 
 The following Python script is used for dataset generation:
 \begin{lstlisting}[language=Python, style=customc, caption=Dataset Generation Script]
-import numpy as np
-import struct
-import argparse
-import sys
-import os
-
 class Dataset:
     def __init__(self, rowsA, colsA, rowsB, colsB, name):
         self.rowsA = rowsA
@@ -121,8 +116,6 @@ def main():
 
     print("Matrices and metadata saved successfully in binary format.")
 
-if __name__ == "__main__":
-    main()
 \end{lstlisting}
 
 This script ensures efficient dataset generation by leveraging NumPy for matrix operations and storing the results in a structured binary format. The metadata file provides dimensions for easy retrieval and compatibility with benchmarking implementations.
@@ -151,17 +144,17 @@ Table \ref{tab:results} summarizes the execution times for different dataset siz
         \hline
         \textbf{Dataset Size} & \textbf{Execution Time (ms)} & \textbf{Standard Deviation} \\
         \hline
-        Testing (50x50) & 0.002 & 161 \\
-        Small (121x115) & 8.836 & 1053204 \\
-        Medium (550x480) & 625.483 & 496743 \\
-        Large (962x1221) & 4612 & 4866044 \\
+        Testing (50x50) & 0.002 & 0.0002 \\
+        Small (121x115) & 8.836 & 1.05 \\
+        Medium (550x480) & 625.483 & 0.496743 \\
+        Large (962x1221) & 4612 & 4.87 \\
         Native (1000x1000) & XX.XX & XX.XX \\
         \hline
     \end{tabular}
         \caption{Execution times for different dataset sizes.}
         \label{tab:results}
     \end{table}
-
+    \newpage
 \subsection{Graphical Representation}
 The following graph illustrates the execution time versus dataset size for the naïve implementation:
 
@@ -279,7 +272,7 @@ Running "scalar_naive" implementation:
     - Number of masked-off = 0
 * Runtimes (MATCHING):  625483670 ns
 \end{lstlisting}
-
+\newpage
 \subsection{Large Dataset Details}
 The following are the detailed results for the large dataset:
 \begin{lstlisting}[caption=Large Dataset Execution Details, style=customc]
@@ -307,7 +300,9 @@ Running "scalar_naive" implementation:
 
 
 \section{Conclusion}
-This report documented the implementation and evaluation of the mmult benchmark. The naïve approach demonstrated significant inefficiencies, highlighting the need for optimizations such as loop tiling, vectorization, and parallelization.
+The benchmarking results demonstrate significant differences in execution times across dataset sizes. The testing dataset (50x50) runs almost instantaneously, whereas the small dataset (121x115) takes 8.836 ms. As matrix sizes increase, execution times rise considerably, with the medium dataset (550x480) requiring 625.483 ms, and the large dataset (962x1221) running for 4.612 seconds. The standard deviation values indicate varying levels of runtime consistency and with larger datasets, it shows greater fluctuation.
+
+These results highlight the inefficiencies of the naïve implementation, especially for larger datasets where cache inefficiencies and memory access patterns significantly impact performance. Future optimizations should focus on improving parallelization and cache optimization.
 
 \section{References}
 \begin{enumerate}
