@@ -144,16 +144,19 @@ Table \ref{tab:results} summarizes the execution times for different dataset siz
         \hline
         \textbf{Dataset Size} & \textbf{Execution Time (ms)} & \textbf{Standard Deviation} \\
         \hline
-        Testing (50x50) & 0.002 & 0.0002 \\
+        Testing (16x8) & 0.002 & 0.0002 \\
         Small (121x115) & 8.836 & 1.05 \\
         Medium (550x480) & 625.483 & 0.496743 \\
         Large (962x1221) & 4612 & 4.87 \\
-        Native (1000x1000) & XX.XX & XX.XX \\
+        Native (2500x2100) & 62837.161 &62837 \\
         \hline
     \end{tabular}
         \caption{Execution times for different dataset sizes.}
         \label{tab:results}
     \end{table}
+
+    The benchmark execution logs and results can be accessed at the following link: \url{https://github.com/mohammed0x00/YABMS/actions}.
+
     \newpage
 \subsection{Graphical Representation}
 The following graph illustrates the execution time versus dataset size for the naïve implementation:
@@ -164,17 +167,17 @@ The following graph illustrates the execution time versus dataset size for the n
             xlabel={Dataset Size (Total Elements)},
             ylabel={Execution Time (µs)},
             title={Execution Time vs Dataset Size},
-            xmin=1000, xmax=1400000, % Adjust X-axis limits
-            ymin=0.1, ymax=1e8, % Adjust Y-axis limits
+            xmin=1000, xmax=6000000, % Adjust X-axis limits
+            ymin=-0.5, ymax=1e9, % Adjust Y-axis limits
             grid=major
         ]
             % Add smooth curve fitting the points
             \addplot[smooth, thick, blue] coordinates {
-                (2500, 1.941)
+                (128, 1.941)
                 (13915, 8836.388)
                 (264000, 625483.670)
-                (1000000, 12000000)
                 (1174602, 4612799)
+                (5250000, 62837161)
             };
             
             % Add actual data points
@@ -183,11 +186,11 @@ The following graph illustrates the execution time versus dataset size for the n
                 mark=*,
                 red
             ] coordinates {
-                (2500, 1.943)
-                (13915, 8803.383)
+                (128, 1.943)
+                (13915, 8803.388)
                 (264000, 625483.670)
-                (1000000, 12000000)
                 (1174602, 4612799)
+                (5250000, 62837161)
             };
         \end{axis}
     \end{tikzpicture}
