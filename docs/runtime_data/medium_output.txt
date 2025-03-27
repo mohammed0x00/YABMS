@@ -1,0 +1,28 @@
+Setting up schedulers and affinity:
+  * Setting the niceness level:
+      -> trying niceness level = -20
+    + Process has niceness level = -20
+  * Setting up FIFO scheduling scheme and high priority ... Succeeded
+  * Setting up scheduling affinity ... Succeeded
+
+Running "scalar_naive" implementation:
+  * Invoking the implementation 20 times .... Finished
+  * Verifying results .... Success
+  * Running statistics:
+    + Starting statistics run number #1:
+      - Standard deviation = 20159900
+      - Average = 988953986
+      - Number of active elements = 20
+      - Number of masked-off = 1
+    + Starting statistics run number #2:
+      - Standard deviation = 7861834
+      - Average = 984676114
+      - Number of active elements = 19
+      - Number of masked-off = 0
+  * Runtimes (MATCHING):  984676114 ns
+  * Dumping runtime informations:
+    - Filename: scalar_naive_runtimes.csv
+    - Opening file .... Succeeded
+    - Writing runtimes ... Finished
+    - Closing file handle .... Finished
+

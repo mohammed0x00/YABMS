@@ -7,6 +7,8 @@
 \usepackage{xcolor}
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
+\usepackage{pgffor}
+\usepackage{verbatim}
 \usepackage[a4paper, margin=1in]{geometry}
 
 % Define colors for code only
@@ -124,15 +126,14 @@ This script ensures efficient dataset generation by leveraging NumPy for matrix 
 The performance of the naïve implementation was evaluated using various dataset sizes. Execution time was measured for each case, and results were compared with optimized implementations.
 
 \subsection{Experimental Setup}
-The experiments were conducted on \textbf{GitHub Runners} with the following setup:
+The experiments were conducted on \texttt{Personal Laptop} with the following setup:
 \begin{itemize}
-    \item Runner Type: Ubuntu-latest GitHub Hosted Runner
+    \item Runner Type: Ubuntu-24.04.1 LTS
     \item Operating System: Linux
-    \item Processor (CPU): 4 cores
-    \item Memory (RAM): 16 GB
-    \item Storage (SSD): 14 GB
+    \item Processor (CPU): AMD PRO A12-9800B R7, 12 COMPUTE CORES 4C+8G
+    \item Memory (RAM): 8 GB
+    \item Storage (SSD): 512 GB
     \item Architecture: x64
-    \item Workflow Label: ubuntu-latest, ubuntu-24.04
     \item Compiler: GCC 13.3.0 with optimization flags -O3
 \end{itemize}
 
@@ -144,11 +145,11 @@ Table \ref{tab:results} summarizes the execution times for different dataset siz
         \hline
         \textbf{Dataset Size} & \textbf{Execution Time (ms)} & \textbf{Standard Deviation} \\
         \hline
-        Testing (16x8) & 0.002 & 0.0002 \\
-        Small (121x115) & 8.836 & 1.05 \\
-        Medium (550x480) & 625.483 & 0.496743 \\
-        Large (962x1221) & 4612 & 4.87 \\
-        Native (2500x2100) & 62837.161 &58.271 \\
+        Testing (16x8) & 0.005 & 0.0008 \\
+        Small (121x115) & 12.137 & 1.189 \\
+        Medium (550x480) & 984.68 & 20.159 \\
+        Large (962x1221) & 11167 & 46.958 \\
+        Native (2500x2100) & 111219 & 661.744 \\
         \hline
     \end{tabular}
         \caption{Execution times for different dataset sizes.}
@@ -160,150 +161,67 @@ Table \ref{tab:results} summarizes the execution times for different dataset siz
     \newpage
 \subsection{Graphical Representation}
 The following graph illustrates the execution time versus dataset size for the naïve implementation:
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log, % Logarithmic scale for better visualization
+                xlabel={Dataset Size (Total Elements)},
+                ylabel={Execution Time (µs)},
+                title={Execution Time vs Dataset Size},
+                width=0.9\textwidth, % Increase width
+                height=0.7\textwidth, % Increase height
+                xmin=1000, xmax=5500000, % Adjust X-axis limits
+                ymin=-0.5, ymax=1e9, % Adjust Y-axis limits
+                grid=major
+            ]
+                % Add smooth curve fitting the points
+                \addplot[smooth, thick, blue] coordinates {
+                    (128, 5.110)
+                    (13915, 12137)
+                    (264000, 984676)
+                    (1174602, 11166648)
+                    (5250000, 111218584)
+                };
+                
+                % Add actual data points
+                \addplot[
+                    only marks,
+                    mark=*,
+                    red
+                ] coordinates {
+                    (128, 5.110)
+                    (13915, 12137)
+                    (264000, 984676)
+                    (1174602, 11166648)
+                    (5250000, 111218584)
+                };
+            \end{axis}
+        \end{tikzpicture}
+    \end{center}
 
-    \begin{tikzpicture}
-        \begin{axis}[
-            ymode=log, % Logarithmic scale for better visualization
-            xlabel={Dataset Size (Total Elements)},
-            ylabel={Execution Time (µs)},
-            title={Execution Time vs Dataset Size},
-            xmin=1000, xmax=6000000, % Adjust X-axis limits
-            ymin=-0.5, ymax=1e9, % Adjust Y-axis limits
-            grid=major
-        ]
-            % Add smooth curve fitting the points
-            \addplot[smooth, thick, blue] coordinates {
-                (128, 1.941)
-                (13915, 8836.388)
-                (264000, 625483.670)
-                (1174602, 4612799)
-                (5250000, 62837161)
-            };
-            
-            % Add actual data points
-            \addplot[
-                only marks,
-                mark=*,
-                red
-            ] coordinates {
-                (128, 1.943)
-                (13915, 8803.388)
-                (264000, 625483.670)
-                (1174602, 4612799)
-                (5250000, 62837161)
-            };
-        \end{axis}
-    \end{tikzpicture}
-    
-\subsection{Testing Dataset Details}
-The following are the detailed results for the testing dataset:
-\begin{lstlisting}[caption=Testing Dataset Execution Details, style=customc]
-Running "scalar_naive" implementation:
-* Invoking the implementation 100 times .... Finished
-* Verifying results .... Success
-* Running statistics:
-    + Starting statistics run number #1:
-    - Standard deviation = 161
-    - Average = 1977
-    - Number of active elements = 100
-    - Number of masked-off = 2
-    + Starting statistics run number #2:
-    - Standard deviation = 68
-    - Average = 1956
-    - Number of active elements = 98
-    - Number of masked-off = 3
-    + Starting statistics run number #3:
-    - Standard deviation = 8
-    - Average = 1944
-    - Number of active elements = 95
-    - Number of masked-off = 2
-    + Starting statistics run number #4:
-    - Standard deviation = 4
-    - Average = 1943
-    - Number of active elements = 93
-    - Number of masked-off = 0
-* Runtimes (MATCHING):  1943 ns
-\end{lstlisting}
+    \subsection{Detailed Results}
+    The execution times for different dataset sizes, measured in milliseconds (ms), along with their standard deviations. As dataset size increases, execution time rises significantly. The "Testing" dataset (16×8), has an execution time of only 0.005 ms with a negligible standard deviation of 0.0008. The "Small" dataset (121×115) takes 12.137 ms, with a slightly higher deviation of 1.189. The "Medium" dataset (550×480) requires around 1 second, showing a noticeable jump in both execution time and deviation (20.159). The "Large" dataset (962×1221) exhibits a much higher execution time of 11 seconds with a deviation of 46.958. Finally, the "Native" dataset (2500×2100) has the highest execution time of 111 seconds and the highest standard deviation of 661.744, indicating increased variability in execution time as dataset size grows.
+    \newline \newline
+    The detailed results for each dataset size are presented below:
+\foreach \dataset in {Testing, Small, Medium, Large, Native} {
+    \newpage
+    \subsection{\dataset \space Dataset Details}
+    The following are the detailed results for the \dataset dataset:
 
-\subsection{Small Dataset Details}
-The following are the detailed results for the small dataset:
-\begin{lstlisting}[caption=Small Dataset Execution Details, style=customc]
-Running "scalar_naive" implementation:
-* Invoking the implementation 100 times .... Finished
-* Verifying results .... Success
-* Running statistics:
-    + Starting statistics run number #1:
-    - Standard deviation = 1053204
-    - Average = 8803383
-    - Number of active elements = 100
-    - Number of masked-off = 0
-* Runtimes (MATCHING):  8803383 ns
-\end{lstlisting}
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{runtime_data/\dataset.png}
+    \end{center}
+
+    \lstinputlisting[style=customc, caption=\dataset \space Dataset Output]{runtime_data/\dataset_output.txt}
+}
 
 
-\subsection{Medium Dataset Details}
-The following are the detailed results for the medium dataset:
-\begin{lstlisting}[caption=Medium Dataset Execution Details, style=customc]
-Running "scalar_naive" implementation:
-* Invoking the implementation 100 times .... Finished
-* Verifying results .... Success
-* Running statistics:
-    + Starting statistics run number #1:
-    - Standard deviation = 496743
-    - Average = 625518214
-    - Number of active elements = 100
-    - Number of masked-off = 2
-    + Starting statistics run number #2:
-    - Standard deviation = 232254
-    - Average = 625516811
-    - Number of active elements = 98
-    - Number of masked-off = 2
-    + Starting statistics run number #3:
-    - Standard deviation = 177534
-    - Average = 625494911
-    - Number of active elements = 96
-    - Number of masked-off = 1
-    + Starting statistics run number #4:
-    - Standard deviation = 169556
-    - Average = 625489228
-    - Number of active elements = 95
-    - Number of masked-off = 1
-    + Starting statistics run number #5:
-    - Standard deviation = 161620
-    - Average = 625483670
-    - Number of active elements = 94
-    - Number of masked-off = 0
-* Runtimes (MATCHING):  625483670 ns
-\end{lstlisting}
-\newpage
-\subsection{Large Dataset Details}
-The following are the detailed results for the large dataset:
-\begin{lstlisting}[caption=Large Dataset Execution Details, style=customc]
-Running "scalar_naive" implementation:
-* Invoking the implementation 100 times .... Finished
-* Verifying results .... Success
-* Running statistics:
-    + Starting statistics run number #1:
-    - Standard deviation = 4866044
-    - Average = 4613444543
-    - Number of active elements = 100
-    - Number of masked-off = 2
-    + Starting statistics run number #2:
-    - Standard deviation = 2936481
-    - Average = 4612904698
-    - Number of active elements = 98
-    - Number of masked-off = 1
-    + Starting statistics run number #3:
-    - Standard deviation = 2763573
-    - Average = 4612799988
-    - Number of active elements = 97
-    - Number of masked-off = 0
-* Runtimes (MATCHING):  4612799988 ns
-\end{lstlisting}
+
+
 
 
 \section{Conclusion}
-The benchmarking results demonstrate significant differences in execution times across dataset sizes. The testing dataset (50x50) runs almost instantaneously, whereas the small dataset (121x115) takes 8.836 ms. As matrix sizes increase, execution times rise considerably, with the medium dataset (550x480) requiring 625.483 ms, and the large dataset (962x1221) running for 4.612 seconds. The standard deviation values indicate varying levels of runtime consistency and with larger datasets, it shows greater fluctuation.
+The benchmarking results demonstrate significant differences in execution times across dataset sizes. The testing dataset (50x50) runs almost instantaneously, whereas the small dataset (121x115) takes 12.137 ms. As matrix sizes increase, execution times rise considerably, with the medium dataset (550x480) requiring 984.676 ms, and the large dataset (962x1221) running for 11.166 seconds. The standard deviation values indicate varying levels of runtime consistency and with larger datasets, it shows greater fluctuation.
 
 These results highlight the inefficiencies of the naïve implementation, especially for larger datasets where cache inefficiencies and memory access patterns significantly impact performance. Future optimizations should focus on improving parallelization and cache optimization.
 
