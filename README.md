@@ -26,9 +26,9 @@ YABMS is an open-source benchmarking suite specifically designed to evaluate the
 
 ## Experimental Setup
 The benchmarking experiments were conducted using:
-- **OS**: Ubuntu-latest (GitHub Hosted Runner)
-- **CPU**: 4 cores
-- **RAM**: 16 GB
+- **OS**: ~~Ubuntu-latest (GitHub Hosted Runner)~~ Ubuntu-24.04.1 LTS (Personal Laptop)
+- **CPU**: ~~4 cores~~ AMD PRO A12-9800B R7, 12 COMPUTE CORES 4C+8G
+- **RAM**: ~~16 GB~~ 8 GB
 - **Compiler**: GCC 13.3.0 with `-O3` optimization
 
 ## Benchmark Results
