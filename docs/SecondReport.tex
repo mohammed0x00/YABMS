@@ -54,11 +54,28 @@ Additionally, I attended a meeting conducted by class students, where we discuss
 
 \section{Naïve Implementation}
 The naïve implementation is a simple three-loop to compute the matrix product:
+
 \lstinputlisting[language=C, style=customc, caption=Naïve mmult implementation]{resources/naive_implementation.c}
 
 This method is straightforward but inefficient due to cache misses and redundant memory accesses. Each element of the matrices is accessed multiple times, leading to poor utilization of the CPU cache. Additionally, the lack of optimization techniques such as loop unrolling results in nonoptimal performance, especially for larger datasets.
 
-\subsection{Dataset Generation}
+\section{Optimized Implementation}
+The optimized implementation applies a blocking strategy to improve spatial and temporal locality. By computing sub-matrices (blocks) of the result matrix, the approach minimizes cache misses by reusing loaded data efficiently.
+
+Blocking refers to dividing the matrices into smaller square blocks or sub-matrices of size \( b \times b \). Instead of computing one element of the result matrix at a time, the algorithm computes partial results over these sub-matrices and accumulates them. This drastically reduces the number of memory accesses to data not residing in cache, which is critical for performance.
+
+The implementation chooses a stationary output sub-matrix, looping over the corresponding input sub-matrices from matrices A and B. This ensures that data is reused as much as possible before being evicted from the cache. The block size \( b \) is passed as a command-line argument, making the implementation tunable to fit different cache configurations and matrix sizes.
+
+One key insight is that performance benefits become more significant as the matrix size increases. This is because larger matrices experience more cache misses in the na\"ive version, and blocking helps mitigate this by exploiting spatial locality in the B matrix and temporal locality in the A matrix.
+
+
+The optimized implementation is as follows:
+\lstinputlisting[language=C, style=customc, caption=Blocked mmult Implementation]{resources/opt_implementation.c}
+
+
+Initial bugs involved uninitialized values and improper bounds when indexing. Fixes were made by ensuring the matrices were zero-initialized and carefully managing loop ranges. Additional care was taken to validate that block size does not exceed the dimensions of the matrices to avoid segmentation faults.
+
+\section{Dataset Generation}
 The dataset required for the benchmark is generated using a Python script. The script generates random matrices, performs matrix multiplication, and saves the datasets in binary format. The dataset consists of predefined matrix sizes categorized into five sets: testing, small, medium, large, and native.
 
 The following Python script is used for dataset generation:
@@ -87,20 +104,20 @@ Table \ref{tab:results} summarizes the execution times for different dataset siz
 \begin{table}[h]
     \begin{tabular}{|c|c|c|}
         \hline
-        \textbf{Dataset Size} & \textbf{Execution Time (ms)} & \textbf{Standard Deviation} \\
+        \textbf{Dataset Size} & \textbf{Naïve Execution Time(ms)} & \textbf{Opt. Execution Time(ms)} \\
         \hline
-        Testing (16x8) & 0.005 & 0.0008 \\
-        Small (121x115) & 12.137 & 1.189 \\
-        Medium (550x480) & 984.68 & 20.159 \\
-        Large (962x1221) & 11167 & 46.958 \\
-        Native (2500x2100) & 111219 & 661.744 \\
+        Testing (16x8) & 0.005 & 0.003 \\
+        Small (121x115) & 12.137 & 4.326 \\
+        Medium (550x480) & 984.68 & 225 \\
+        Large (962x1221) & 11167 & 2204 \\
+        Native (2500x2100) & 111219 & 25396 \\
         \hline
     \end{tabular}
         \caption{Execution times for different dataset sizes.}
         \label{tab:results}
     \end{table}
 
-    The benchmark execution logs and results can be accessed at the following link: \url{https://github.com/mohammed0x00/YABMS/tree/main/docs/runtime_data}.
+    The benchmark execution logs and results can be accessed at the following link: \url{https://github.com/mohammed0x00/YABMS/tree/main/docs/runtime_data_opt}.
 
     \newpage
 \subsection{Graphical Representation}
@@ -118,7 +135,7 @@ The following graph illustrates the execution time versus dataset size for the n
                 ymin=-0.5, ymax=1e9, % Adjust Y-axis limits
                 grid=major
             ]
-                % Add smooth curve fitting the points
+                % Add smooth curve fitting the points for the naive implementation
                 \addplot[smooth, thick, blue] coordinates {
                     (128, 5.110)
                     (13915, 12137)
@@ -126,8 +143,17 @@ The following graph illustrates the execution time versus dataset size for the n
                     (1174602, 11166648)
                     (5250000, 111218584)
                 };
+
+                % Add smooth curve fitting the points for the optimized implementation
+                \addplot[smooth, thick, green] coordinates {
+                    (128, 3.147)
+                    (13915, 4326)
+                    (264000, 225005)
+                    (1174602, 2204004)
+                    (5250000, 25396312)
+                };
                 
-                % Add actual data points
+                % Add actual data points for the naive implementation
                 \addplot[
                     only marks,
                     mark=*,
@@ -138,6 +164,19 @@ The following graph illustrates the execution time versus dataset size for the n
                     (264000, 984676)
                     (1174602, 11166648)
                     (5250000, 111218584)
+                };
+
+                % Add actual data points for the optimized implementation
+                \addplot[
+                    only marks,
+                    mark=*,
+                    purple
+                ] coordinates {
+                    (128, 3.147)
+                    (13915, 4326)
+                    (264000, 225005)
+                    (1174602, 2204004)
+                    (5250000, 25396312)
                 };
             \end{axis}
         \end{tikzpicture}
@@ -153,10 +192,10 @@ The following graph illustrates the execution time versus dataset size for the n
     The following are the detailed results for the \dataset \space dataset:
 
     \begin{center}
-        \includegraphics[width=0.8\textwidth]{runtime_data/\dataset.png}
+        \includegraphics[width=0.8\textwidth]{runtime_data_opt/\dataset.png}
     \end{center}
 
-    \lstinputlisting[style=customc, caption=\dataset \space Dataset Output]{runtime_data/\dataset_output.txt}
+    \lstinputlisting[style=customc, caption=\dataset \space Dataset Output]{runtime_data_opt/\dataset_output.txt}
 }
 
 

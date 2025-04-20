@@ -1,0 +1,31 @@
+Running "scalar_opt" implementation:
+  * Invoking the implementation 20 times .... Finished
+  * Verifying results .... Success
+  * Running statistics:
+    + Starting statistics run number #1:
+      - Standard deviation = 734113245
+      - Average = 26321780085
+      - Number of active elements = 20
+      - Number of masked-off = 4
+    + Starting statistics run number #2:
+      - Standard deviation = 574367356
+      - Average = 25598762400
+      - Number of active elements = 16
+      - Number of masked-off = 1
+    + Starting statistics run number #3:
+      - Standard deviation = 286857123
+      - Average = 25468953877
+      - Number of active elements = 15
+      - Number of masked-off = 1
+    + Starting statistics run number #4:
+      - Standard deviation = 94935667
+      - Average = 25396312350
+      - Number of active elements = 14
+      - Number of masked-off = 0
+  * Runtimes (MATCHING):  25396312350 ns
+  * Dumping runtime informations:
+    - Filename: scalar_opt_runtimes.csv
+    - Opening file .... Succeeded
+    - Writing runtimes ... Finished
+    - Closing file handle .... Finished
+
