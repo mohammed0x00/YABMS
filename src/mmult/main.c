@@ -290,6 +290,7 @@ int main(int argc, char** argv)
   args.input0   = srcA;
   args.input1   = srcB;
   args.output   = dest;
+  args.block_size = 16;
 
   args.cpu      = cpu;
   args.nthreads = nthreads;

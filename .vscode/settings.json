@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "types.h": "c",
-        "macros.h": "c"
+        "macros.h": "c",
+        "stdlib.h": "c"
     }
 }
