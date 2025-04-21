@@ -1,0 +1,7 @@
+% DatasetSize (x-axis) and Naive (y-axis)
+DatasetSize Naive
+128 5.110
+13915 12137
+264000 984676
+1174602 11166648
+5250000 111218584

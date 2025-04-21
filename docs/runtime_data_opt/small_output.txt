@@ -22,7 +22,4 @@ Running "scalar_opt" implementation:
   * Runtimes (MATCHING):  4326795 ns
   * Dumping runtime informations:
     - Filename: scalar_opt_runtimes.csv
-    - Opening file .... Succeeded
-    - Writing runtimes ... Finished
-    - Closing file handle .... Finished
 

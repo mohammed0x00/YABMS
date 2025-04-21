@@ -5,6 +5,8 @@ import os
 # Define paths for before and after optimization
 before_opt_path = "./runtime_data"
 after_opt_path = "./runtime_data_opt"
+opt32_path = "./runtime_data_opt32"
+opt64_path = "./runtime_data_opt64"
 
 # Function to process CSV files and extract runtimes
 def process_csv_files(files_path):
@@ -50,19 +52,25 @@ def process_csv_files(files_path):
             }
     return runtimes_dict
 
-# Process both datasets
+# Process all datasets
 before_opt_data = process_csv_files(before_opt_path)
 after_opt_data = process_csv_files(after_opt_path)
+opt32_data = process_csv_files(opt32_path)
+opt64_data = process_csv_files(opt64_path)
 
 # Plot comparison
 for file_name in before_opt_data.keys():
-    if file_name in after_opt_data:  # Ensure matching files exist in both datasets
+    if file_name in after_opt_data and file_name in opt32_data and file_name in opt64_data:
         before_data = before_opt_data[file_name]
         after_data = after_opt_data[file_name]
+        opt32 = opt32_data[file_name]
+        opt64 = opt64_data[file_name]
 
         plt.figure(figsize=(12, 8))
         x_vals_before = np.arange(1, len(before_data["runtimes"]) + 1)
         x_vals_after = np.arange(1, len(after_data["runtimes"]) + 1)
+        x_vals_opt32 = np.arange(1, len(opt32["runtimes"]) + 1)
+        x_vals_opt64 = np.arange(1, len(opt64["runtimes"]) + 1)
 
         # Plot before optimization
         plt.scatter(
@@ -102,6 +110,46 @@ for file_name in before_opt_data.keys():
             color='brown',
             linestyle='--',
             label=f'After Opt Avg = {int(after_data["final_avg"])} ns'
+        )
+
+        # Plot block size 32
+        plt.scatter(
+            x_vals_opt32[opt32["mask"]],
+            opt32["runtimes"][opt32["mask"]],
+            color='cyan',
+            label='Block Size 32 (Active Elements)'
+        )
+        plt.scatter(
+            x_vals_opt32[~opt32["mask"]],
+            opt32["runtimes"][~opt32["mask"]],
+            color='magenta',
+            label='Block Size 32 (Outliers)'
+        )
+        plt.axhline(
+            y=opt32["final_avg"],
+            color='darkcyan',
+            linestyle='--',
+            label=f'Block Size 32 Avg = {int(opt32["final_avg"])} ns'
+        )
+
+        # Plot block size 64
+        plt.scatter(
+            x_vals_opt64[opt64["mask"]],
+            opt64["runtimes"][opt64["mask"]],
+            color='yellow',
+            label='Block Size 64 (Active Elements)'
+        )
+        plt.scatter(
+            x_vals_opt64[~opt64["mask"]],
+            opt64["runtimes"][~opt64["mask"]],
+            color='brown',
+            label='Block Size 64 (Outliers)'
+        )
+        plt.axhline(
+            y=opt64["final_avg"],
+            color='gold',
+            linestyle='--',
+            label=f'Block Size 64 Avg = {int(opt64["final_avg"])} ns'
         )
 
         # Labels and title

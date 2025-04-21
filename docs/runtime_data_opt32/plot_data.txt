@@ -1,0 +1,7 @@
+% DatasetSize (x-axis) and Naive (y-axis)
+DatasetSize Opt32
+128 3.482
+13915 3860
+264000 221543
+1174602 1861399
+5250000 24536114

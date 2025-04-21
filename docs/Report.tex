@@ -110,26 +110,14 @@ The following graph illustrates the execution time versus dataset size for the n
                 grid=major
             ]
                 % Add smooth curve fitting the points
-                \addplot[smooth, thick, blue] coordinates {
-                    (128, 5.110)
-                    (13915, 12137)
-                    (264000, 984676)
-                    (1174602, 11166648)
-                    (5250000, 111218584)
-                };
+                \addplot[blue, thick, smooth] table[x=DatasetSize, y=Naive] {runtime_data/plot_data.txt};
                 
                 % Add actual data points
                 \addplot[
                     only marks,
                     mark=*,
                     red
-                ] coordinates {
-                    (128, 5.110)
-                    (13915, 12137)
-                    (264000, 984676)
-                    (1174602, 11166648)
-                    (5250000, 111218584)
-                };
+                ] table[x=DatasetSize, y=Naive] {runtime_data/plot_data.txt};
             \end{axis}
         \end{tikzpicture}
     \end{center}

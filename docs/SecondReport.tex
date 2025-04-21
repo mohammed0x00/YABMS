@@ -97,20 +97,21 @@ Execution time was measured for each configuration, and speedup was calculated a
 Table \ref{tab:results} summarizes the execution times for both the naïve and optimized implementations across different dataset sizes. The execution times are measured in milliseconds (ms) and represent the average time taken over multiple runs. The results indicate a significant performance improvement with the optimized implementation, especially for larger datasets.
 
 \begin{table}[h]
-    \begin{tabular}{|c|c|c|}
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
         \hline
-        \textbf{Dataset Size} & \textbf{Naïve Execution Time(ms)} & \textbf{Opt. Execution Time(ms)} \\
+        \textbf{Dataset Size} & \textbf{Naïve} & \textbf{Opt16} & \textbf{Opt32} & \textbf{Opt64}\\
         \hline
-        Testing (16x8) & 0.005 & 0.003 \\
-        Small (121x115) & 12.137 & 4.326 \\
-        Medium (550x480) & 984.68 & 225 \\
-        Large (962x1221) & 11167 & 2204 \\
-        Native (2500x2100) & 111219 & 25396 \\
+        Testing (16x8) & 0.005 & 0.003 & 0.003 & 0.002 \\
+        Small (121x115) & 12.137 & 4.326 & 3.860 & 4.012 \\
+        Medium (550x480) & 985 & 225 & 222 & 233 \\
+        Large (962x1221) & 11167 & 2204 & 1861 & 1921 \\
+        Native (2500x2100) & 111219 & 25396 & 24536 & 25746 \\
         \hline
     \end{tabular}
-        \caption{Execution times for different dataset sizes.}
-        \label{tab:results}
-    \end{table}
+    \caption{Execution times in milliseconds (ms) for different implementations across different dataset sizes.}
+    \label{tab:results}
+\end{table}
 
     The benchmark execution logs and results can be accessed at the following link: \url{https://github.com/mohammed0x00/YABMS/tree/main/docs/runtime_data_opt}.
 
@@ -130,48 +131,27 @@ The following graph illustrates the execution time of the naïve and optimized i
                 grid=major
             ]
                 % Add smooth curve fitting the points for the naive implementation
-                \addplot[smooth, thick, blue] coordinates {
-                    (128, 5.110)
-                    (13915, 12137)
-                    (264000, 984676)
-                    (1174602, 11166648)
-                    (5250000, 111218584)
-                };
+                \addplot[blue, thick, smooth] table[x=DatasetSize, y=Naive] {runtime_data/plot_data.txt};
+                \addlegendentry{Naïve}
 
-                % Add smooth curve fitting the points for the optimized implementation
-                \addplot[smooth, thick, green] coordinates {
-                    (128, 3.147)
-                    (13915, 4326)
-                    (264000, 225005)
-                    (1174602, 2204004)
-                    (5250000, 25396312)
-                };
-                
+                % Add smooth curve fitting the points for the optimized implementation (block size 16)
+                \addplot[smooth, thick, green] table[x=DatasetSize, y=Opt16] {runtime_data_opt/plot_data.txt};
+                \addlegendentry{Opt16}
+
                 % Add actual data points for the naive implementation
                 \addplot[
                     only marks,
                     mark=*,
                     red
-                ] coordinates {
-                    (128, 5.110)
-                    (13915, 12137)
-                    (264000, 984676)
-                    (1174602, 11166648)
-                    (5250000, 111218584)
-                };
+                ] table[x=DatasetSize, y=Naive] {runtime_data/plot_data.txt};
 
-                % Add actual data points for the optimized implementation
+                % Add actual data points for the optimized implementation (block size 16)
                 \addplot[
                     only marks,
                     mark=*,
                     purple
-                ] coordinates {
-                    (128, 3.147)
-                    (13915, 4326)
-                    (264000, 225005)
-                    (1174602, 2204004)
-                    (5250000, 25396312)
-                };
+                ] table[x=DatasetSize, y=Opt16] {runtime_data_opt/plot_data.txt};
+
             \end{axis}
         \end{tikzpicture}
     \end{center}
@@ -186,7 +166,7 @@ The following graph illustrates the execution time of the naïve and optimized i
     The following table summarizes the execution times for the \dataset \space dataset. The table includes the execution time for both the naïve and optimized implementations.
 
     \begin{center}
-        \includegraphics[width=0.8\textwidth]{runtime_data_opt/\dataset.png}
+        \includegraphics[width=1.0\textwidth]{runtime_data_opt/\dataset.png}
     \end{center}
 
     \lstinputlisting[style=customc, caption=\dataset \space Dataset Output]{runtime_data_opt/\dataset_output.txt}
@@ -194,6 +174,57 @@ The following graph illustrates the execution time of the naïve and optimized i
 
     \subsection{Impact of Block Size}
     The results indicate that the block size \( b \) has a significant impact on performance. For smaller datasets, the block size does not have a noticeable effect, as the entire dataset can fit into the CPU cache. However, for larger datasets, a block size of \( b = 16 \) consistently provides the best performance. This is because it strikes a balance between reducing cache misses and minimizing overhead from frequent block switching.
+    
+    The following graph illustrates the execution time of the optimized implementation against different block sizes for the native dataset. The X-axis represents the block size, while the Y-axis shows the execution time in microseconds (µs). The graph includes both the actual data points and a smooth curve fitting the points for better visualization.
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log, % Logarithmic scale for better visualization
+                xlabel={Dataset Size (Total Elements)},
+                ylabel={Execution Time (µs)},
+                title={Execution Time vs Dataset Size},
+                width=0.9\textwidth, % Increase width
+                height=0.7\textwidth, % Increase height
+                xmin=1000, xmax=5500000, % Adjust X-axis limits
+                ymin=1e5, ymax=1e8, % Adjust Y-axis limits
+                grid=major
+            ]
+                % Add smooth curve fitting the points for the optimized implementation (block size 16)
+                \addplot[smooth, thick, green] table[x=DatasetSize, y=Opt16] {runtime_data_opt/plot_data.txt};
+                \addlegendentry{Opt16}
+
+                % Add smooth curve fitting the points for the optimized implementation (block size 32)
+                \addplot[smooth, thick, pink] table[x=DatasetSize, y=Opt32] {runtime_data_opt32/plot_data.txt};
+                \addlegendentry{Opt32}
+
+                % Add smooth curve fitting the points for the optimized implementation (block size 64)
+                \addplot[smooth, thick, purple] table[x=DatasetSize, y=Opt64] {runtime_data_opt64/plot_data.txt};
+                \addlegendentry{Opt64}
+
+                % Add actual data points for the optimized implementation (block size 16)
+                \addplot[
+                    only marks,
+                    mark=*,
+                    purple
+                ] table[x=DatasetSize, y=Opt16] {runtime_data_opt/plot_data.txt};
+
+                % Add actual data points for the optimized implementation (block size 32)
+                \addplot[
+                    only marks,
+                    mark=*,
+                    purple
+                ] table[x=DatasetSize, y=Opt32] {runtime_data_opt32/plot_data.txt};
+
+                % Add actual data points for the optimized implementation (block size 64)
+                \addplot[
+                    only marks,
+                    mark=*,
+                    purple
+                ] table[x=DatasetSize, y=Opt64] {runtime_data_opt64/plot_data.txt};
+
+            \end{axis}
+        \end{tikzpicture}
+    \end{center}
 
     \subsection{Speedup Analysis}
     The speedup achieved by the optimized implementation is most pronounced for larger datasets. For the native dataset, the optimized implementation achieves a speedup of approximately 4.5x compared to the naïve implementation. This is due to the significant reduction in cache misses and improved data reuse achieved by the blocking strategy.
@@ -214,7 +245,7 @@ The following graph illustrates the execution time of the naïve and optimized i
 \section{Conclusion}
 In conclusion, the implementation of matrix-matrix multiplication (mmult) has been successfully optimized using a blocking strategy. The results demonstrate a significant performance improvement over the naïve implementation, particularly for larger datasets. The choice of block size and the sub-matrix selection play a crucial role in achieving optimal performance.
 The evaluation results indicate that the optimized implementation can achieve speedups of up to 4.5x compared to the naïve version, making it a valuable optimization. The insights gained from this project will inform future work on optimizing other benchmarks and improving overall performance in scientific computing applications.
-
+\newpage
 \section{References}
 \begin{enumerate}
     \item GNU Make Manual: \url{https://www.gnu.org/software/make/manual/make.html}
