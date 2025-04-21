@@ -74,22 +74,23 @@ The performance of the naïve implementation was evaluated using various dataset
 
 \subsection{Results}
 Table \ref{tab:results} summarizes the execution times for different dataset sizes.
-
 \begin{table}[h]
-    \begin{tabular}{|c|c|c|}
-        \hline
-        \textbf{Dataset Size} & \textbf{Execution Time (ms)} & \textbf{Standard Deviation} \\
-        \hline
-        Testing (16x8) & 0.005 & 0.0008 \\
-        Small (121x115) & 12.137 & 1.189 \\
-        Medium (550x480) & 984.68 & 20.159 \\
-        Large (962x1221) & 11167 & 46.958 \\
-        Native (2500x2100) & 111219 & 661.744 \\
-        \hline
-    \end{tabular}
+    \begin{center}
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Dataset Size} & \textbf{Execution Time (ms)} & \textbf{Standard Deviation} \\
+            \hline
+            Testing (16x8) & 0.005 & 0.0008 \\
+            Small (121x115) & 12.137 & 1.189 \\
+            Medium (550x480) & 984.68 & 20.159 \\
+            Large (962x1221) & 11167 & 46.958 \\
+            Native (2500x2100) & 111219 & 661.744 \\
+            \hline
+        \end{tabular}
         \caption{Execution times for different dataset sizes.}
         \label{tab:results}
-    \end{table}
+    \end{center}
+\end{table}
 
     The benchmark execution logs and results can be accessed at the following link: \url{https://github.com/mohammed0x00/YABMS/tree/main/docs/runtime_data}.
 
